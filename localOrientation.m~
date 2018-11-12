@@ -1,0 +1,46 @@
+function orientationmMap = localOrientation(I, w)
+    % Divide the original fingerprint image into blocks (with overlaps
+    % and compute DFT for each block. Determine if each block belongs to a
+    % certain part of fingerprint, if yes, calculate its local orientation.
+    % I: input image
+    % w: block size, in this case 32 would be appropriate
+    [M, N] = size(I); 
+    [Gx, Gy] = imgradientxy(I);
+    block_x = (0 : floor(N/(w/4)) - 3) * w / 4; %
+    block_y = (0 : floor(M/(w/4)) - 3) * w / 4;
+    v_x = zeros( length(block_x), length(block_y) );
+    v_y = zeros( length(block_x), length(block_y) );
+    for i = 1 : length(block_x)
+        for j = 1 : length(block_y)
+            u = block_x(i); v = block_y(i);
+%             block_region = [(u-w/2):(u+w/2) ; (v-w/2):(v+w/2)];
+            block_region = [u:(u+w-1) ; v:(v+w-1)];
+            
+            block_gx = Gx(block_region(1, :), block_region(2, :))
+            block_gy = Gy(block_region(1, :), block_region(2, :));
+            v_x = 2 * sum(sum(block_gx .* block_gy));
+            v_y = sum(sum( block_gx.^2 - block_gy^2 ));
+        end
+    end
+%     orientationMap = block
+    vnorm = sqrt(v_x .^ 2 + v_y .^ 2);
+    wphi = 10;
+    kernel = 1 / w_phi^2 * ones(wphi, wphi);
+    Phi_x = imfilter( v_x ./vnorm, kernel, 'replicate');
+    Phi_y = imfilter( v_y ./vnorm, kernel, 'replicate');
+    
+    orientationmMap = -1/2*atan2(Phi_x, Phi_y);
+    
+    imshow(I);
+    hold on;
+    [m, n] = size(O);
+    for i = 1:m
+        for j = 1:n
+            center_x = block_x(i) + ceil(w/2);
+            center_y = block_y(j) + ceil(w/2);
+            theta = O(i, j);
+            line( [center_y -w/2*sin(theta), center_y+w/2*sin(theta)],...
+                [center_x-w/2*cos(theta), center_x+w/2*cos(theta)], 'linewidth',2);
+        end
+    end
+end
