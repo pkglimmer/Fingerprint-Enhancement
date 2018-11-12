@@ -1,12 +1,18 @@
-I = im2double(imread('FTIR.bmp'));
+I = im2double(imread('phone.bmp'));
 [M, N] = size(I);
 w = 32;
 block_x = (0 : floor((M-w)/(w/4)) ) * w / 4 + 1; % separating into blocks
 block_y = (0 : floor((N-w)/(w/4)) ) * w / 4 + 1;
+% 
+% F = fspecial('sobel');
+% J = filter2(F, I);
+J = filter2(fspecial('average', 3), J);
+J = histeq(I);
+J = normalization(J, 0, 2);
+imsh
+% O = localOrientation(J, w, block_x, block_y, 20);
+% plotOrientation(J, O, w, block_x, block_y);
 
-O = localOrientation(I, w, block_x, block_y, 75);
-
-plotOrientation(I, O, w, block_x, block_y);
 
 function plotOrientation(I, O, w, block_x, block_y)
     imshow(I);
