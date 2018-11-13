@@ -1,26 +1,16 @@
 I = im2double(imread('latent.bmp'));
-[M, N] = size(I);
+I = histeq(I);
 w = 32;
-block_x = (0 : floor((M-w)/(w/4)) ) * w / 4 + 1; % separating into blocks
-block_y = (0 : floor((N-w)/(w/4)) ) * w / 4 + 1;
+block_x = (0 : floor((M1-w)/(w/4)) ) * w / 4 + 1; % separating into blocks
+block_y = (0 : floor((N1-w)/(w/4)) ) * w / 4 + 1;
+O = localOrientation(I, w, block_x, block_y, 0);
 
-O = localOrientation(I, w, block_x, block_y, 20);
+vthresh1 = 0.55;
+vthresh2 = 0.0025;
 
-plotOrientation(I, O, w, block_x, block_y);
+[fingerprint, area1] = extractFingerprint(I, O, block_x, block_y, w, vthresh1, vthresh2, 2);
 
-function plotOrientation(I, O, w, block_x, block_y)
-    imshow(I);
-    hold on;
-    [m, n] = size(O);
-    for i = 1:m
-        for j = 1:n
-            center_x = block_x(i) + ceil(w/2);
-            center_y = block_y(j) + ceil(w/2);
-            theta = O(i, j);
-            line([center_y - w/4 * sin(theta), center_y + w/4 * sin(theta)],...
-                [center_x - w/4 * cos(theta), center_x + w/4 * cos(theta)], 'linewidth', 1);
-        end
-    end
-end
+J = I .* double(fingerprint);
+imshow(J)
 
-
+%%
