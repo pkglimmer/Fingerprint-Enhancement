@@ -8,7 +8,7 @@ function plotOrientation(I, O, w, block_x, block_y)
             center_y = block_y(j) + ceil(w/2);
             theta = O(i, j);
             line([center_y - w/4 * sin(theta), center_y + w/4 * sin(theta)],...
-                [center_x - w/4 * cos(theta), center_x + w/4 * cos(theta)], 'linewidth', 1);
+                [center_x - w/4 * cos(theta), center_x + w/4 * cos(theta)], 'linewidth', 2);
         end
     end
 end

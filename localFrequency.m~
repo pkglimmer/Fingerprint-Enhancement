@@ -1,5 +1,5 @@
-function O = localOrientation(I, w, block_x, block_y, thresh)
-    O = zeros(length(block_x), length(block_y));
+function F = localFrequency(I, w, block_x, block_y, thresh)
+    F = zeros(length(block_x), length(block_y));
     for i = 1 : length(block_x)
         for j = 1 : length(block_y)
             u = block_x(i); v = block_y(j);
@@ -10,22 +10,28 @@ function O = localOrientation(I, w, block_x, block_y, thresh)
             if length(peak)==2 && max(magnitude(:)) > thresh
                 dy = mod(peak(1), w) - mod(peak(2), w);
                 dx = ceil(peak(1)/w) - ceil(peak(2)/w);
-                if dy < 0 
-                    O(i, j) = pi - atan2(-dy, -dx);
-                else
-                    O(i, j) = atan2(dy, -dx) + pi;
-                end
+                F(i, j) = sqrt(dx^2 + dy^2);
             else
-                O(i, j) = NaN;
+                F(i, j) = NaN;
             end
         end
     end
-    for i = 2 : length(block_x)-1
-        for j = 2 : length(block_y)-1
-            block = O(i-1:i+1, j-1:j+1);
-            if length(isnan(block(:)))<4
-                O(i, j) = mean(block(~isnan(block)));
-            end
-        end
-    end
+    F = meanFilter(F, 7); % accor
 end
+
+
+function smoothFreq = meanFilter(freq, w)
+    [m, n] = size(freq);
+    smoothFreq = nan(m, n);
+    w0 = floor(w/2); % half window 
+    for i = 1:m
+        for j = 1:n
+            if ~isnan(freq(i,j))
+                blockFreq = freq(i-w0:i+w0, j-w0:j+w0);
+                smoothFreq(i, j) = mean(blockFreq(~isnan(blockFreq)));
+            end
+        end
+    end    
+end
+
+

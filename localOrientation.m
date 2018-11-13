@@ -20,4 +20,15 @@ function O = localOrientation(I, w, block_x, block_y, thresh)
             end
         end
     end
+    for i = 2 : length(block_x)-1
+        for j = 2 : length(block_y)-1
+            block = O(i-1:i+1, j-1:j+1);
+            nanCount = length(find(isnan(block(:))));
+            if ~isnan(O(i,j)) && nanCount>0
+                O(i, j) = median(block(~isnan(block)));
+            elseif isnan(O(i,j)) && nanCount<=6
+                O(i, j) = median(block(~isnan(block)));
+            end
+        end
+    end
 end
