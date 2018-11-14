@@ -7,6 +7,11 @@ function fingerprint = extractFingerprint(I, O, F, block_x, block_y, w, vthresh1
     closedTable = zeros(M*N, 2);
     cur = 1; total = 1;
     closedTable(1, :) = start;
+    
+    u = round(M/2); v = round(N/2);
+    sampleFreq = F(u-2:u+2, v-2:v+2);
+    sampleFreq = mean(sampleFreq(:));
+    
     while cur <= total
         pos = closedTable(cur, :);
         cur = cur + 1;
@@ -21,7 +26,8 @@ function fingerprint = extractFingerprint(I, O, F, block_x, block_y, w, vthresh1
                     regionOrientation = O(x-2:x+2, y-2:y+2);
                     regionFrequency = F(x-2:x+2, y-2:y+2);
                     if var(regionOrientation(:))<vthresh1 && ... 
-                            ~isnan(area(x,y)) && var(regionFrequency(:))<vthresh2
+                            ~isnan(area(x,y)) && var(regionFrequency(:))<vthresh2 && ...
+                                abs(mean(regionFrequency(:))-sampleFreq)/sampleFreq<0.4
                         area(x, y) = O(x, y);
                         total = total + 1;
                         closedTable(total, :) = adjacentPos;
