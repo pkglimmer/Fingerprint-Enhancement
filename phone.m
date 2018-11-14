@@ -42,6 +42,6 @@ result = imresize(result, [M,N]);
 
 figure;
 % subplot(1,3,1); imshow(I);
-subplot(1,2,1); plotOrientation(I, O, fingerprint, w);
-subplot(1,2,2); imshow(result);
+subplot(1,2,1); plotOrientation(I, O, fingerprint, w); title('Orientation & Mask');
+subplot(1,2,2); imshow(result); title('Fingerprint Enhancement');
 

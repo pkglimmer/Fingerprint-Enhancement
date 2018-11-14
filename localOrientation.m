@@ -34,17 +34,17 @@ function O = localOrientation(I, w)
             end
         end
     end
-    O_filtered = Olpf(O);
+    O_filtered = Olpf(O, 5);
 end
 
 % low-pass filter according to the paper
-function A = Olpf(O)
-    kernel = fspecial('gaussian', [5, 5], 50);
+function A = Olpf(O, w)
+    kernel = fspecial('gaussian', [w, w], 50);
     phix = cos(O);
     phiy = sin(O);
     phix = imfilter(phix, kernel, 'replicate');
     phiy = imfilter(phiy, kernel, 'replicate');
-    A = tan(phiy/phix);
+    A = atan(phiy ./phix);
 end
 
 

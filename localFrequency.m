@@ -33,22 +33,13 @@ function F = localFrequency(I, w)
             end
         end
     end
-    F = meanFilter(F, 3); % apply mean filter
+    F = Flpf(F, 3); % apply LPF
 end
 
 
-function smoothFreq = meanFilter(freq, w)
-    [m, n] = size(freq);
-    smoothFreq = freq;
-    w0 = floor(w/2); % half window 
-    for i = 1+w0:m-w0
-        for j = 1+w0:n-w0
-            if ~isnan(freq(i,j)) 
-                blockFreq = freq(i-w0:i+w0, j-w0:j+w0);
-                smoothFreq(i, j) = mean(blockFreq(~isnan(blockFreq)));
-            end
-        end
-    end    
+function smoothFreq = Flpf(F, w)
+    kernel = fspecial('gaussian', w, 10);
+    smoothFreq = imfilter(F, kernel, 'replicate');
 end
 
 
