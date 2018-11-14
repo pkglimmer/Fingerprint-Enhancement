@@ -4,7 +4,8 @@ function J = spatialGabor(I, fingerprintArea, O, freq, w, block_x, block_y)
     overlap = zeros(M, N);
     for i = 1 : length(block_x)
         for j = 1 : length(block_y)
-            if fingerprintArea(i, j)
+            if fingerprintArea(block_x(i)+w-1, block_y(j)+w-1) && ...
+                    fingerprintArea(block_x(i), block_y(j))
                 block_region = [ block_x(i) : block_x(i)+w-1; block_y(j) : block_y(j)+w-1 ];
                 block = I(block_region(1, :), block_region(2, :));
                 [MAG, PHASE] = imgaborfilt(block, freq(i, j), O(i, j)*180/pi);

@@ -4,7 +4,7 @@ I = histeq(I);
 w = 32;
 block_x = (0 : floor((M1-w)/(w/4)) ) * w / 4 + 1; % separating into blocks
 block_y = (0 : floor((N1-w)/(w/4)) ) * w / 4 + 1;
-O = localOrientation(I, w, block_x, block_y, 0);
+O = localOrientation(I, w, block_x, block_y);
 F = localFrequency(I, w, block_x, block_y, 0);
 
 vthresh1 = 0.55;

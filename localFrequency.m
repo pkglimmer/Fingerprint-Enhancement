@@ -12,7 +12,12 @@ function F = localFrequency(I, w, block_x, block_y, thresh)
                 dx = ceil(peak(1)/w) - ceil(peak(2)/w);
                 F(i, j) = sqrt(dx^2 + dy^2);
             else
-                F(i, j) = NaN;
+                dy = mod(peak(1), w) - 16.5;
+                dx = ceil(peak(1)/w) - 16.5;
+                F(i, j) = sqrt(dx^2 + dy^2);
+                if F(i, j)<2
+                    F(i, j) = 2;
+                end
             end
         end
     end

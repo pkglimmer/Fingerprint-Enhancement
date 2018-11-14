@@ -16,16 +16,29 @@ function O = localOrientation(I, w, block_x, block_y, thresh)
                     O(i, j) = atan2(dy, -dx) + pi;
                 end
             else
-                O(i, j) = NaN;
+%                 O(i, j) = NaN;
+                dy = mod(peak(1), w) - 16.5;
+                dx = ceil(peak(1)/w) - 16.5;
+                if (dx > 0 && dy > 0) || (dx < 0 && dy < 0)
+                    O(i, j) = atan(dy / dx);
+                else
+                    O(i, j) = -atan(dy / dx);
+                end
             end
         end
     end
-    for i = 2 : length(block_x)-1
-        for j = 2 : length(block_y)-1
-            block = O(i-1:i+1, j-1:j+1);
-            if length(isnan(block(:)))<4
-                O(i, j) = mean(block(~isnan(block)));
-            end
-        end
-    end
+    figure(4); plotOrientation(I, O, w, block_x, block_y);
+%     temp = O; % median filter
+%     for i = 2 : length(block_x)-1
+%         for j = 2 : length(block_y)-1
+%             block = O(i-1:i+1, j-1:j+1);
+%             nanCount = length(find(isnan(block(:))));
+%             if ~isnan(O(i,j)) && nanCount>5
+%                 temp(i, j) = median(block(~isnan(block)));
+%             elseif isnan(O(i,j)) && nanCount<=6
+%                 temp(i, j) = median(block(~isnan(block)));
+%             end
+%         end
+%     end
+%     O = temp;
 end

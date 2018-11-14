@@ -1,14 +1,6 @@
-function [fingerprint, Orientation] = extractFingerprint(I, O, block_x, block_y, w, vthresh1, vthresh2, expand)
+function fingerprint = extractFingerprint(I, O, F, block_x, block_y, w, vthresh1, vthresh2, expand)
     M = size(O, 1); 
     N = size(O, 2);
-    brightness = zeros(M, N);
-    for i = 1 : length(block_x)
-        for j = 1 : length(block_y)
-            u = block_x(i); v = block_y(j);
-            block_region = I(u:(u+w-1), v:(v+w-1));
-            brightness(i, j) = mean(block_region(:));
-        end
-    end
     start = round([M/2, N/2]);
     expansion = [1 0; 0 -1; -1 0; 0 1];
     area = ones(M, N)*(-1); % fingerprint area
@@ -27,9 +19,9 @@ function [fingerprint, Orientation] = extractFingerprint(I, O, block_x, block_y,
                     area(x, y) = nan;
                 else
                     regionOrientation = O(x-2:x+2, y-2:y+2);
-                    regionBrightness = brightness(x-2:x+2, y-2:y+2);
+                    regionFrequency = F(x-2:x+2, y-2:y+2);
                     if var(regionOrientation(:))<vthresh1 && ... 
-                            ~isnan(area(x,y)) && var(regionBrightness(:))<vthresh2
+                            ~isnan(area(x,y)) && var(regionFrequency(:))<vthresh2
                         area(x, y) = O(x, y);
                         total = total + 1;
                         closedTable(total, :) = adjacentPos;
@@ -37,17 +29,25 @@ function [fingerprint, Orientation] = extractFingerprint(I, O, block_x, block_y,
                         area(x, y) = nan;
                     end
                 end
-                area(x, y) = O(x, y);
             end
         end
     end
     area(area==-1) = nan;
-    Orientation = ones(M, N) * nan;
     fingerprint = false(size(I,1), size(I,2));
     for i = expand+1 : M-expand-1
         for j = expand+1 : N-expand-1
             if ~isempty(find(~isnan(area(i-expand:i+expand, j-expand:j+expand)), 1))
-                Orientation(i,j) = O(i,j);
+                u = block_x(i); v = block_y(j);
+                fingerprint(u:(u+w-1), v:(v+w-1)) = true;
+            end
+        end
+    end
+    k = 2;
+    for i = k+1 : M-k
+        for j = k+1 : N-k
+            block = area(i-k:i+k, j-k:j+k);
+            nanCount = length(find(isnan(block(:))));
+            if nanCount < (2*k+1)^2/8
                 u = block_x(i); v = block_y(j);
                 fingerprint(u:(u+w-1), v:(v+w-1)) = true;
             end
