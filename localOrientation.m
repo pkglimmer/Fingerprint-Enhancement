@@ -1,42 +1,50 @@
-function O = localOrientation(I, w, block_x, block_y)
-    O = nan(length(block_x), length(block_y));
+function O = localOrientation(I, w)
+% Returns a matrix of local orientations in each block
+% I: input image
+% w: window size
+% In ideal situation, there are two peaks in each spectrum, which are
+% almost center-symmetric; in other cases, use only one coordinate to
+% calculate the local orientation.
+    [M, N] = size(I);
+    block_x = (0 : floor((M-w)/(w/4)) ) * w / 4 + 1; % separating into blocks
+    block_y = (0 : floor((N-w)/(w/4)) ) * w / 4 + 1;
+    O = nan(length(block_x), length(block_y)); 
     for i = 1 : length(block_x)
         for j = 1 : length(block_y)
             u = block_x(i); v = block_y(j);
             block_region = I(u:(u+w-1), v:(v+w-1));
             magnitude = abs(fftshift( fft2(block_region) ));
-            magnitude(magnitude == max(magnitude(:))) =  0; % delete DC component
-            peak = find(magnitude == max(magnitude(:)));
-            if length(peak)==2
-                dy = mod(peak(1), w) - mod(peak(2), w);
-                dx = ceil(peak(1)/w) - ceil(peak(2)/w);
-                if dy < 0 
-                    O(i, j) = pi - atan2(-dy, -dx);
-                else
-                    O(i, j) = atan2(dy, -dx);
-                end
+            peak = find(magnitude == max(magnitude(:))); % find freq peak
+            k = 0;
+            while length(peak) ~= 2 && k<3
+                magnitude(magnitude == max(magnitude(:))) =  0; % delete DC component
+                peak = find(magnitude == max(magnitude(:))); % find freq peak
+                k = k+1;
+            end
+            if k == 3
+                O(i, j) = pi/2;
+                continue
+            end
+            dy = mod(peak(1), w) - mod(peak(2), w);
+            dx = ceil(peak(1)/w) - ceil(peak(2)/w);
+            if dy < 0 
+                O(i, j) = pi - atan2(-dy, -dx);
             else
-                dy = mod(peak(1), w) - 16.5;
-                dx = ceil(peak(1)/w) - 16.5;
-                if (dx > 0 && dy < 0) || (dx < 0 && dy > 0)
-                    O(i, j) = atan(dy / dx);
-                else
-                    O(i, j) = -atan(dy / dx);
-                end
+                O(i, j) = atan2(dy, -dx);
             end
         end
     end
-%     temp = O; % median filter
-%     O(isnan(O))
-%     for i = 5 : length(block_x)-5
-%         for j = 5 : length(block_y)-5
-%             block = O(i-4:i+4, j-4:j+4);
-%             %nanCount = length(find(isnan(block(:))));
-%             if abs(O(i,j)<0.01) || abs(O(i, j)-pi/2)<0.01
-%                 temp(i, j) = median(block(~isnan(block)));
-%             end
-%             
-%         end
-%     end
-%     O = temp;
+    O_filtered = Olpf(O);
 end
+
+% low-pass filter according to the paper
+function A = Olpf(O)
+    kernel = fspecial('gaussian', [5, 5], 50);
+    phix = cos(O);
+    phiy = sin(O);
+    phix = imfilter(phix, kernel, 'replicate');
+    phiy = imfilter(phiy, kernel, 'replicate');
+    A = tan(phiy/phix);
+end
+
+

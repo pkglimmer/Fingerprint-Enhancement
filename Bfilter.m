@@ -1,4 +1,6 @@
 function image_out = Bfilter(image_in, D0, N)
+% Butterworth low pass filter
+% full credit to https://blog.csdn.net/cjsh_123456/article/details/79342300
     % Butterworth滤波器，在频率域进行滤波
     % 输入为需要进行滤波的灰度图像，Butterworth滤波器的截止频率D0，阶数N
     % 输出为滤波之后的灰度图像

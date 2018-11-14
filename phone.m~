@@ -1,0 +1,57 @@
+I = im2double(imread('phone.bmp'));
+I = imresize(I, [400, 300]);
+[M, N] = size(I);
+w = 32;
+block_x = (0 : floor((M-w)/(w/4)) ) * w / 4 + 1; % separating into blocks
+block_y = (0 : floor((N-w)/(w/4)) ) * w / 4 + 1;
+I = im2double(Bfilter(I, 300, 2));
+I = normalization(I, 0.5, 0.5);
+imshow(I)
+
+%% median
+%I =  histeq(I);
+%J = filter2(fspecial('gaussian', 3), I);
+%J = normalization(J, 0.5, 0.1);
+w = 8;
+block_x = (0 : floor((M-w)/w) ) * w + 1; % separating into blocks
+block_y = (0 : floor((N-w)/w) ) * w + 1;
+
+J = I;
+V = zeros(length(block_x), length(block_y));
+for i = 1 : length(block_x)
+    for j = 1 : length(block_y)
+        u = block_x(i); v = block_y(j);
+        block_region = I(u:(u+w-1), v:(v+w-1));
+        MEDIAN = median(block_region(:));
+        VAR = var(block_region(:));
+        % thresh = graythresh(block_region);
+        % J(u:(u+w-1), v:(v+w-1)) = imbinarize(block_region, thresh);
+        J(u:(u+w-1), v:(v+w-1)) = normalization(block_region, MEDIAN, 0.5);
+    end
+end
+%J = normalization(J, 0.5, 0.5);
+J = 1-J;
+imshow(J);
+
+%% extract
+%J = J1;
+w = 32;
+block_x = (0 : floor((M-w)/(w/4)) ) * w / 4 + 1; % separating into blocks
+block_y = (0 : floor((N-w)/(w/4)) ) * w / 4 + 1;
+O = localOrientation(J, w, block_x, block_y);
+F = localFrequency(J, w, block_x, block_y);
+%figure(1); plotOrientation(J, O, w, block_x, block_y);
+
+vthresh1 = 10000;
+vthresh2 = 10000;
+fthresh = 1000;
+expand = 0;
+fingerprint = extractFingerprint(J, O, F, block_x, block_y, w, vthresh1, vthresh2, fthresh, expand);
+result = spatialGabor(J, fingerprint, O, F, w, block_x, block_y);
+result = imresize(result, [M,N]);
+
+figure(1);imshow(J.*fingerprint)
+figure(2);imshow(result)
+figure(3);plotOrientation(J, O, w, block_x, block_y);
+
+

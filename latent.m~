@@ -14,9 +14,9 @@ for i = 1 : length(block_x)
         J(u:(u+w-1), v:(v+w-1)) = imbinarize(block_region, thresh);
     end
 end
-imshow(J)
 
-%% Enhance
+imshow(J)
+%%
 w = 32;
 O = localOrientation(J, w);
 F = localFrequency(J, w);
@@ -30,6 +30,6 @@ fingerprint = extractFingerprint(J, O, F, w, vthresh1, vthresh2, fthresh, 0);
 result = spatialGabor(I, fingerprint, O, F, w);
 
 figure;
-% subplot(1,3,1); imshow(I);
-subplot(1,2,1); plotOrientation(I, O, fingerprint, w);
-subplot(1,2,2); imshow(result);
+subplot(1,3,1); imshow(I);
+subplot(1,3,2); plotOrientation(I, O, fingerprint, w);
+subplot(1,3,3); imshow(result);

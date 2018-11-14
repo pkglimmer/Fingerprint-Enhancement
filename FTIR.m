@@ -5,24 +5,18 @@ block_x = (0 : floor((M-w)/(w/4)) ) * w / 4 + 1; % separating into blocks
 block_y = (0 : floor((N-w)/(w/4)) ) * w / 4 + 1;
 
 %%
-O = localOrientation(I, w, block_x, block_y);
-F = localFrequency(I, w, block_x, block_y, 0);
+O = localOrientation(I, w);
+F = localFrequency(I, w);
 
-vthresh1 = 1;
-vthresh2 = 2;
+vthresh1 = 10;
+vthresh2 = 3;
+fthresh = 0.4;
 expand = 0;
 
-fingerprint = extractFingerprint(I, O, F, block_x, block_y, w, vthresh1, vthresh2, expand);
-J = I .* double(fingerprint);
+fingerprint = extractFingerprint(I, O, F, w, vthresh1, vthresh2, fthresh, expand);
+result = spatialGabor(I, fingerprint, O, F, w);
 
-result = spatialGabor(I, fingerprint, O, F, w, block_x, block_y);
-
-figure(1);imshow(J)
-figure(2);imshow(result)
-figure(3);plotOrientation(I, O, w, block_x, block_y);
-
-%%
-% I2 = im2bw(I, 0.70);
-close all;
-result1 = normalization(result, 0.5, 1);
-figure(2);imshow(result);
+figure;
+% subplot(1,3,1); imshow(I);
+subplot(1,2,1); plotOrientation(I, O, fingerprint, w);
+subplot(1,2,2); imshow(result);
